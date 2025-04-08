@@ -1,0 +1,52 @@
+<form id="searchForm">
+  <label>Sheet:
+    <select id="sheetSelect"></select>
+  </label>
+  <label>Name:
+    <input type="text" id="nameInput" required>
+  </label>
+  <button type="submit">Search</button>
+</form>
+
+<div id="results"></div>
+
+<script>
+  document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const sheet = document.getElementById('sheetSelect').value;
+    const name = document.getElementById('nameInput').value;
+    google.script.run.withSuccessHandler(displayResults).searchNameFlexible(sheet, name);
+  });
+
+  function displayResults(rows) {
+    const container = document.getElementById('results');
+    container.innerHTML = '';
+    if (!rows.length) {
+      container.innerText = 'No matches found.';
+      return;
+    }
+
+    const table = document.createElement('table');
+    rows.forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(cell => {
+        const td = document.createElement('td');
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+    container.appendChild(table);
+  }
+
+  // Optional: populate dropdown with sheet names
+  google.script.run.withSuccessHandler(function(sheets) {
+    const select = document.getElementById('sheetSelect');
+    sheets.forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  }).getSheetNames();
+</script>
